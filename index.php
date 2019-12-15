@@ -81,11 +81,31 @@ try {
 
     $probe = FFMpeg\FFProbe::create();
 
-    $bitRate = $probe
+    $probeInfo = $probe
             ->streams($currentFilename)
             ->videos()
-            ->first()
-            ->get('bit_rate') / 1024;
+            ->first();
+
+    /*
+    var_dump($probeInfo);
+    exit;
+    */
+
+    $kiloBitRate = null;
+    $bitrate = null;
+
+    if ($probeInfo) {
+        $bitrate = $probeInfo->get('bitrate');;
+
+        if ($bitrate) {
+            $kiloBitRate = ceil($bitrate / 1024);
+        } else {
+            $width = $probeInfo->get('width');
+            if ($width) {
+                $kiloBitRate = max(1500, ceil(($width / 1980) * 1500));
+            }
+        }
+    }
 
     // now cut
     $ffmpeg = FFMpeg\FFMpeg::create([
@@ -109,7 +129,10 @@ try {
         $extension = 'mp3';
     } else {
         $format = new FFMpeg\Format\Video\X264('aac');
-        $format->setKiloBitrate($bitRate);
+
+        if ($kiloBitRate) {
+            $format->setKiloBitrate($kiloBitRate);
+        }
 
         $extension = 'mp4';
     }
