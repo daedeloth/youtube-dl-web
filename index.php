@@ -79,6 +79,14 @@ try {
     //echo '<pre>';
     //echo 'Downloaded ' . $filename . " to " . $currentFilename . "\n";
 
+    $probe = FFMpeg\FFProbe::create();
+
+    $bitRate = $probe
+            ->streams($currentFilename)
+            ->videos()
+            ->first()
+            ->get('bit_rate') / 1024;
+
     // now cut
     $ffmpeg = FFMpeg\FFMpeg::create([
         'timeout'          => 3600, // The timeout for the underlying process
@@ -101,6 +109,8 @@ try {
         $extension = 'mp3';
     } else {
         $format = new FFMpeg\Format\Video\X264('aac');
+        $format->setKiloBitrate($bitRate);
+
         $extension = 'mp4';
     }
 
