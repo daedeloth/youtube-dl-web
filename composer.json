@@ -4,7 +4,7 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "norkunas/youtube-dl-php": "^1.4",
+        "norkunas/youtube-dl-php": "^1.6",
         "php-ffmpeg/php-ffmpeg": "dev-master"
     }
 }
