@@ -110,7 +110,7 @@ try {
     // now cut
     $ffmpeg = FFMpeg\FFMpeg::create([
         'timeout'          => 3600, // The timeout for the underlying process
-        'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
+        'ffmpeg.threads'   => 4,   // The number of threads that FFMpeg should use
     ]);
 
     $finalVideo = $ffmpeg->open($currentFilename);
@@ -128,7 +128,7 @@ try {
         $format = new \FFMpeg\Format\Audio\Mp3();
         $extension = 'mp3';
     } else {
-        $format = new FFMpeg\Format\Video\X264('aac');
+        $format = new FFMpeg\Format\Video\X264();
 
         if ($kiloBitRate) {
             $format->setKiloBitrate($kiloBitRate);
