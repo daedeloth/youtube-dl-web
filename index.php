@@ -132,7 +132,7 @@ try {
         $format = new \FFMpeg\Format\Audio\Mp3();
         $extension = 'mp3';
     } else {
-        $format = new FFMpeg\Format\Video\X264();
+        $format = new FFMpeg\Format\Video\X264('aac');
 
         if ($kiloBitRate) {
             $format->setKiloBitrate($kiloBitRate);
