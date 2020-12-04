@@ -70,6 +70,10 @@ try {
     $video = $dl->download($url);
     $filename = $video->getFilename();
 
+    if (!$name) {
+        $name = $filename;
+    }
+
     $extension = explode('.', $filename);
     $extension = $extension[count($extension) - 1];
 
