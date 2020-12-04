@@ -124,7 +124,9 @@ try {
     $duration = FFMpeg\Coordinate\TimeCode::fromSeconds($clipDuration);
     */
 
-    $finalVideo->filters()->clip($start/*, $duration*/);
+    if ($start) {
+        $finalVideo->filters()->clip($start/*, $duration*/);
+    }
 
     // video or audio?
     if ($type === 'audio') {
