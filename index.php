@@ -115,16 +115,11 @@ try {
 
     $finalVideo = $ffmpeg->open($currentFilename);
 
-    $clipStart = $skip;
+    $clipStart = intval($skip);
     //$clipDuration = 120;
 
-    $start = FFMpeg\Coordinate\TimeCode::fromSeconds($clipStart);
-
-    /*
-    $duration = FFMpeg\Coordinate\TimeCode::fromSeconds($clipDuration);
-    */
-
-    if ($start) {
+    if ($clipStart) {
+        $start = FFMpeg\Coordinate\TimeCode::fromSeconds($clipStart);
         $finalVideo->filters()->clip($start/*, $duration*/);
     }
 
