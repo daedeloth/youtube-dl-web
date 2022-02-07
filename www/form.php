@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -25,16 +25,16 @@
     <form method="post">
         <div class="form-group">
             <label for="url">Video URL</label>
-            <input type="url" class="form-control" id="url" name="url" placeholder="URL">
+            <input type="url" class="form-control" id="url" name="url" placeholder="URL" />
         </div>
 
         <div class="form-group">
             <label for="name">Output file name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+            <input type="text" class="form-control" id="name" name="name" placeholder="Name" />
         </div>
 
         <div class="form-group">
-            <label for="name">Convert to</label>
+            <label for="downloadType">Convert to</label>
             <select class="form-control" id="downloadType" name="downloadType">
                 <option value="audio">Audio only</option>
                 <option value="video">Video</option>
@@ -43,8 +43,8 @@
         </div>
 
         <div class="form-group">
-            <label for="name">Skip the first seconds</label>
-            <input type="number" class="form-control" id="skipTo" name="skipTo" placeholder="Skip first seconds">
+            <label for="skipTo">Skip the first seconds</label>
+            <input type="number" class="form-control" id="skipTo" name="skipTo" placeholder="Skip first seconds" />
         </div>
 
         <button type="submit" class="btn btn-primary">Download</button>
