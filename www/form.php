@@ -18,11 +18,20 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
+<script>
+    function clearForm() {
+        setTimeout(function () {
+
+            $('input').val('');
+
+        }, 500);
+    }
+</script>
 
 <div class="container">
 
     <h1>Download</h1>
-    <form method="post">
+    <form method="post" target="_blank" onsubmit="clearForm()">
         <div class="form-group">
             <label for="url">Video URL</label>
             <input type="url" class="form-control" id="url" name="url" placeholder="URL" />
@@ -45,6 +54,11 @@
         <div class="form-group">
             <label for="skipTo">Skip the first seconds</label>
             <input type="number" class="form-control" id="skipTo" name="skipTo" placeholder="Skip first seconds" />
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Duration</label>
+            <input type="number" class="form-control" id="duration" name="duration" placeholder="Duration" />
         </div>
 
         <button type="submit" class="btn btn-primary">Download</button>

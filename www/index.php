@@ -13,16 +13,27 @@ use YoutubeDl\Exception\CopyrightException;
 use YoutubeDl\Exception\NotFoundException;
 use YoutubeDl\Exception\PrivateVideoException;
 
-if (!isset($_POST['url'])) {
+if (!isset($_POST['url']) && !isset($_GET['url'])) {
     include 'form.php';
     exit;
 }
 
+if (isset($_POST['url'])) {
+    $targetUrl = '/?' . http_build_query($_POST);
+
+    //header('Location: ' . '/?' . http_build_query($_POST));
+    echo 'Downloading ' . $_POST['url'] . ', please wait...';
+
+    echo '<script>window.location="' . $targetUrl . '";</script>';
+    return;
+}
+
 // For more options go to https://github.com/rg3/youtube-dl#user-content-options
-$url = isset($_POST['url']) ? $_POST['url'] : null;
-$type = isset($_POST['downloadType']) ? $_POST['downloadType'] : 'video';
-$skip = isset($_POST['skipTo']) ? $_POST['skipTo'] : 0;
-$name = isset($_POST['name']) ? $_POST['name'] : null;
+$url = isset($_GET['url']) ? $_GET['url'] : null;
+$type = isset($_GET['downloadType']) ? $_GET['downloadType'] : 'video';
+$skip = isset($_GET['skipTo']) ? $_GET['skipTo'] : 0;
+$name = isset($_GET['name']) ? $_GET['name'] : null;
+$duration = isset($_GET['duration']) ? $_GET['duration'] : null;
 //$destination = '/home/daedeloth/Team Drives/thijs@catlab.be/De Quizfabriek/Quizzes/Edities/Seizoen 5/QW 5.3 Radio Quizfabriek (muziekquiz)/Attachments/Gedownload';
 //$destination = '/home/daedeloth/Fragmenten/';
 
@@ -120,11 +131,17 @@ try {
     $finalVideo = $ffmpeg->open($currentFilename);
 
     $clipStart = intval($skip);
-    //$clipDuration = 120;
+    $clipDuration = $duration ? intval($duration) : null;
 
     if ($clipStart) {
         $start = FFMpeg\Coordinate\TimeCode::fromSeconds($clipStart);
-        $finalVideo->filters()->clip($start/*, $duration*/);
+
+        if ($clipDuration > 0) {
+            $clipDuration = FFMpeg\Coordinate\TimeCode::fromSeconds($clipDuration);
+            $finalVideo->filters()->clip($start, $clipDuration);
+        } else {
+            $finalVideo->filters()->clip($start);
+        }
     }
 
     // video or audio?
