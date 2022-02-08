@@ -48,6 +48,7 @@
 
         e.preventDefault();
         var frameId = frameCount ++;
+        var cookieName = 'download_cookie_' + frameId;
 
         var url = $('[name=url]').val();
         var settings = {
@@ -55,7 +56,8 @@
             name: $('[name=name]').val(),
             downloadType: $('[name=downloadType]').val(),
             skipTo: $('[name=skipTo]').val(),
-            duration: $('[name=duration]').val()
+            duration: $('[name=duration]').val(),
+            cookieName: cookieName
         };
 
         var listItem = $('<li><span class="downloading">Downloading ' + url + '</span></li>');
@@ -64,6 +66,7 @@
         $.fileDownload(
             '/?' + $.param(settings), {
 
+                cookieName: cookieName,
                 successCallback: function() {
                     listItem.html('<span class="done">Done loading ' + url + '</span>');
                 },
