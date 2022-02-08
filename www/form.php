@@ -120,6 +120,10 @@
 
     <div id="frameDiv"></div>
 
+    <div class="footer">
+        <a href="https://github.com/daedeloth/youtube-dl-web">Source code</a>
+    </div>
+
 </div>
 
 </body>
