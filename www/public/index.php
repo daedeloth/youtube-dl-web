@@ -1,7 +1,7 @@
 <?php
 
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 define('TMP_DOWNLOAD_DIR', '/tmp/youtube-dl/');
 

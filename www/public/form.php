@@ -17,10 +17,14 @@
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-<script src="./jqueryFileDownloader.js"></script>
+<script src="jqueryFileDownloader.js"></script>
 
 <style>
     .downloading {
+        background: #b3fff9;
+    }
+
+    .scheduled {
         background: #ffffb3;
     }
 
@@ -45,47 +49,138 @@
 <script>
     var frameCount = 0;
     var activeDownloads = 0;
+    var maxActiveDownloads = 2;
+    var downloadQueue = [];
 
     function downloadFile(e) {
 
         e.preventDefault();
-        var frameId = frameCount ++;
-        var cookieName = 'download_cookie_' + frameId;
-
         var url = $('[name=url]').val();
+        if (url == '') {
+            // do nothing;
+            return;
+        }
+
+        addPendingDownload(
+            url,
+            $('[name=name]').val(),
+            $('[name=downloadType]').val(),
+            $('[name=skipTo]').val(),
+            $('[name=duration]').val()
+        )
+
+        $('input').val('');
+        return false;
+    }
+
+    function addPendingDownload(url, name, type, skipTo, duration) {
+        if (!url || url == '') {
+            return;
+        }
+
         var settings = {
             url: url,
-            name: $('[name=name]').val(),
-            downloadType: $('[name=downloadType]').val(),
-            skipTo: $('[name=skipTo]').val(),
-            duration: $('[name=duration]').val(),
-            cookieName: cookieName
+            name: name,
+            downloadType: type,
+            skipTo: skipTo,
+            duration: duration
         };
 
-        var listItem = $('<li><span class="downloading">Downloading ' + url + '</span></li>');
+        var description = url;
+
+        var detail = '';
+        if (skipTo) {
+            detail += 'start at ' + skipTo + 's, ';
+        }
+
+        if (duration) {
+            detail += 'duration ' + skipTo + 's, ';
+        }
+
+        if (detail !== '') {
+            description += ' (' + detail.substr(0, detail.length - 2) + ')';
+        }
+
+        var frameId = frameCount ++;
+
+        var listItem = $('<li><span class="scheduled">Scheduled ' + description + '</span></li>');
         $('#downloadList').append(listItem);
+
+        downloadQueue.push({
+            index: frameId,
+            listItem: listItem,
+            settings: settings,
+            url: url,
+            description: description
+        });
+
+        if (activeDownloads < maxActiveDownloads) {
+            downloadNext();
+        }
+    }
+
+    function downloadNext() {
+        if (downloadQueue.length === 0) {
+            // done!
+            return;
+        }
 
         activeDownloads ++;
 
+        var nextItem = downloadQueue.shift();
+        var cookieName = 'download_cookie_' + nextItem.index;
+
+        nextItem.settings.cookieName = cookieName;
+        nextItem.listItem.html('<span class="downloading">Downloading ' + nextItem.description + '</span>');
+
         $.fileDownload(
-            '/?' + $.param(settings), {
+            '/?' + $.param(nextItem.settings), {
 
                 cookieName: cookieName,
                 successCallback: function() {
-                    listItem.html('<span class="done">Done loading ' + url + '</span>');
+                    nextItem.listItem.html('<span class="done">Done loading ' + nextItem.description + '</span>');
                     activeDownloads --;
+
+                    downloadNext();
                 },
 
                 failCallback: function() {
-                    listItem.html('<span class="error">Failed downloading ' + url + '</span>');
+                    nextItem.listItem.html('<span class="error">Failed downloading ' + nextItem.description + '</span>');
                     activeDownloads --;
+
+                    downloadNext();
                 }
 
             }
         );
+    }
 
-        $('input').val('');
-        return false;
+    function pasteVideoList(event) {
+        let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+        // look for tab or newline
+        if (paste.indexOf('\n') < 0 || paste.indexOf('\t') < 0) {
+            return;
+        }
+
+        event.preventDefault();
+
+        // go through all rows
+        var rows = paste.split('\n');
+        rows.forEach(function(row) {
+            let props = row.split('\t');
+
+            var type = 'video';
+            switch (props[2]) {
+                case 'audio':
+                case 'video':
+                case 'video-only':
+                    type = props[2];
+                    break;
+            }
+
+            addPendingDownload(props[0], props[1], type, parseInt(props[3]), parseInt(props[4]));
+        });
     }
 
     window.onbeforeunload = function() {
@@ -100,8 +195,8 @@
     <h1>Download</h1>
     <form onsubmit="return downloadFile(event);" method="post" target="_blank">
         <div class="form-group">
-            <label for="url">Video URL</label>
-            <input type="url" class="form-control" id="url" name="url" placeholder="URL" />
+            <label for="url">Video URL (or copy/paste list)</label>
+            <input type="url" class="form-control" id="url" name="url" placeholder="URL" onpaste="pasteVideoList(event)" />
         </div>
 
         <div class="form-group">
