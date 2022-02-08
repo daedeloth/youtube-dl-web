@@ -44,6 +44,8 @@
 
 <script>
     var frameCount = 0;
+    var activeDownloads = 0;
+
     function downloadFile(e) {
 
         e.preventDefault();
@@ -63,16 +65,20 @@
         var listItem = $('<li><span class="downloading">Downloading ' + url + '</span></li>');
         $('#downloadList').append(listItem);
 
+        activeDownloads ++;
+
         $.fileDownload(
             '/?' + $.param(settings), {
 
                 cookieName: cookieName,
                 successCallback: function() {
                     listItem.html('<span class="done">Done loading ' + url + '</span>');
+                    activeDownloads --;
                 },
 
                 failCallback: function() {
                     listItem.html('<span class="error">Failed downloading ' + url + '</span>');
+                    activeDownloads --;
                 }
 
             }
@@ -80,6 +86,12 @@
 
         $('input').val('');
         return false;
+    }
+
+    window.onbeforeunload = function() {
+        if (activeDownloads > 0) {
+            return "You have active downloads. Are you sure you want to exit?";
+        }
     }
 </script>
 
@@ -124,7 +136,7 @@
     <div id="frameDiv"></div>
 
     <div class="footer">
-        <a href="https://github.com/daedeloth/youtube-dl-web">Source code</a>
+        <a href="https://github.com/daedeloth/youtube-dl-web" target="_blank">Source code</a>
     </div>
 
 </div>
