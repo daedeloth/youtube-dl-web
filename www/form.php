@@ -107,13 +107,13 @@
         </div>
 
         <div class="form-group">
-            <label for="skipTo">Skip the first seconds</label>
+            <label for="skipTo">Skip the first ... seconds</label>
             <input type="number" class="form-control" id="skipTo" name="skipTo" placeholder="Skip first seconds" />
         </div>
 
         <div class="form-group">
-            <label for="duration">Duration</label>
-            <input type="number" class="form-control" id="duration" name="duration" placeholder="Duration" />
+            <label for="duration">Duration (in seconds)</label>
+            <input type="number" class="form-control" id="duration" name="duration" placeholder="Duration (in seconds)" />
         </div>
 
         <button type="submit" class="btn btn-primary">Download</button>
