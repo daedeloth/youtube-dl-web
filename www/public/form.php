@@ -94,7 +94,7 @@
         }
 
         if (duration) {
-            detail += 'duration ' + skipTo + 's, ';
+            detail += 'duration ' + duration + 's, ';
         }
 
         if (detail !== '') {
