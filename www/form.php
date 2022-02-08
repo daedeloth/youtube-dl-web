@@ -101,7 +101,7 @@
             <label for="downloadType">Convert to</label>
             <select class="form-control" id="downloadType" name="downloadType">
                 <option value="audio">Audio only</option>
-                <option value="video">Video</option>
+                <option value="video" selected>Video</option>
                 <option value="video-only">Video only</option>
             </select>
         </div>
