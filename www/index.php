@@ -177,6 +177,7 @@ try {
     header('Content-Type: application/octet-stream');
     header("Content-Transfer-Encoding: Binary");
     header("Content-disposition: attachment; filename=\"" . $name . '.' . $extension . "\"");
+    setcookie('fileDownload', 'true');
 
     readfile($finalDestination);
 

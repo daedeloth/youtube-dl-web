@@ -17,21 +17,73 @@
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="./jqueryFileDownloader.js"></script>
+
+<style>
+    .downloading {
+        background: #ffffb3;
+    }
+
+    .done {
+        background: #bdffbd;
+    }
+
+    .error {
+        background: #ff7575;
+    }
+
+    #downloadList {
+        margin-top: 20px;
+    }
+
+    #downloadList li span {
+        padding: 10px;
+        display: block;
+    }
+</style>
 
 <script>
-    function clearForm() {
-        setTimeout(function () {
+    var frameCount = 0;
+    function downloadFile(e) {
 
-            $('input').val('');
+        e.preventDefault();
+        var frameId = frameCount ++;
 
-        }, 500);
+        var url = $('[name=url]').val();
+        var settings = {
+            url: url,
+            name: $('[name=name]').val(),
+            downloadType: $('[name=downloadType]').val(),
+            skipTo: $('[name=skipTo]').val(),
+            duration: $('[name=duration]').val()
+        };
+
+        var listItem = $('<li><span class="downloading">Downloading ' + url + '</span></li>');
+        $('#downloadList').append(listItem);
+
+        $.fileDownload(
+            '/?' + $.param(settings), {
+
+                successCallback: function() {
+                    listItem.html('<span class="done">Done loading ' + url + '</span>');
+                },
+
+                failCallback: function() {
+                    listItem.html('<span class="error">Failed downloading ' + url + '</span>');
+                }
+
+            }
+        );
+
+        $('input').val('');
+        return false;
     }
 </script>
 
 <div class="container">
 
     <h1>Download</h1>
-    <form method="post" target="_blank" onsubmit="clearForm()">
+    <form onsubmit="return downloadFile(event);" method="post" target="_blank">
         <div class="form-group">
             <label for="url">Video URL</label>
             <input type="url" class="form-control" id="url" name="url" placeholder="URL" />
@@ -63,6 +115,10 @@
 
         <button type="submit" class="btn btn-primary">Download</button>
     </form>
+
+    <ul id="downloadList"></ul>
+
+    <div id="frameDiv"></div>
 
 </div>
 
