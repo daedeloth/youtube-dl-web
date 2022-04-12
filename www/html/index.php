@@ -64,31 +64,38 @@ class VideoMuteFilter implements VideoFilterInterface
 $createdFiles = [];
 
 try {
-    $options = [
-        'continue' => true, // force resume of partially downloaded files. By default, youtube-dl will resume downloads if possible.
-    ];
+
+    $options = \YoutubeDl\Options::create()
+        ->continue(true)
+        ->downloadPath(TMP_DOWNLOAD_DIR)
+        ->url($url);
 
     if ($type === 'audio') {
-        $options['extract-audio'] = true;
-        $options['audio-format'] = 'mp3';
-        $options['audio-quality'] = 0;
-        $options['output'] = '%(title)s.%(ext)s';
+
+        $options->extractAudio(true)
+            ->audioFormat('mp3')
+            ->audioQuality(0)
+            ->output('%(title)s.%(ext)s');
     }
 
-    $dl = new YoutubeDl($options);
-    $dl->setDownloadPath(TMP_DOWNLOAD_DIR);
+    $dl = new YoutubeDl();
 
-    $video = $dl->download($url);
+    $video = $dl->download($options)->getVideos()[0];
+
+    if ($video->getError()) {
+        throw new Exception($video->getError());
+    }
+
     $filename = $video->getFilename();
 
     if (!$name) {
-        $name = $filename;
+        $name = substr($filename, strlen(TMP_DOWNLOAD_DIR));
     }
 
     $extension = explode('.', $filename);
     $extension = $extension[count($extension) - 1];
 
-    $currentFilename = TMP_DOWNLOAD_DIR . $filename;
+    $currentFilename = $filename;
     $createdFiles[] = $currentFilename;
 
     //echo '<pre>';
