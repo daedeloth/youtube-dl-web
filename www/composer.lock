@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ed78e2642aeb1ee0a10861a33bd6c66",
+    "content-hash": "2a69ba8cc2e4e81f29a7e8b19236facd",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -55,7 +55,7 @@
         },
         {
             "name": "norkunas/youtube-dl-php",
-            "version": "v2.1.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/norkunas/youtube-dl-php.git",
@@ -81,6 +81,7 @@
                 "phpstan/phpstan-phpunit": "^1.0",
                 "symfony/phpunit-bridge": "^5.1.5|^6.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1119,6 +1120,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "norkunas/youtube-dl-php": 20,
         "php-ffmpeg/php-ffmpeg": 20
     },
     "prefer-stable": false,

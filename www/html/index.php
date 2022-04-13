@@ -41,6 +41,12 @@ if (!file_exists(TMP_DOWNLOAD_DIR)) {
     mkdir(TMP_DOWNLOAD_DIR);
 }
 
+// create a temporary directory
+$tmpDir = tempnam(TMP_DOWNLOAD_DIR, 'ytdl-');
+if (file_exists($tmpDir)) {
+    unlink($tmpDir);
+}
+mkdir($tmpDir);
 
 class VideoMuteFilter implements VideoFilterInterface
 {
@@ -61,22 +67,38 @@ class VideoMuteFilter implements VideoFilterInterface
     }
 }
 
+function rrmdir($dir) {
+    if (is_dir($dir)) {
+        $objects = scandir($dir);
+        foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+                if (is_dir($dir. DIRECTORY_SEPARATOR .$object) && !is_link($dir."/".$object))
+                    rrmdir($dir. DIRECTORY_SEPARATOR .$object);
+                else
+                    unlink($dir. DIRECTORY_SEPARATOR .$object);
+            }
+        }
+        rmdir($dir);
+    }
+}
+
 $createdFiles = [];
 
 try {
 
     $options = \YoutubeDl\Options::create()
         ->continue(true)
-        ->downloadPath(TMP_DOWNLOAD_DIR)
+        ->downloadPath($tmpDir)
         ->url($url);
 
+    /*
     if ($type === 'audio') {
 
         $options->extractAudio(true)
             ->audioFormat('mp3')
             ->audioQuality(0)
             ->output('%(title)s.%(ext)s');
-    }
+    }*/
 
     $dl = new YoutubeDl();
 
@@ -86,10 +108,10 @@ try {
         throw new Exception($video->getError());
     }
 
-    $filename = $video->getFilename();
+    $filename = $video->getFile()->getPathname();
 
     if (!$name) {
-        $name = substr($filename, strlen(TMP_DOWNLOAD_DIR));
+        $name = $video->getFile()->getBasename('.' . $video->getFile()->getExtension());
     }
 
     $extension = explode('.', $filename);
@@ -104,9 +126,9 @@ try {
     $probe = FFMpeg\FFProbe::create();
 
     $probeInfo = $probe
-            ->streams($currentFilename)
-            ->videos()
-            ->first();
+        ->streams($currentFilename)
+        ->videos()
+        ->first();
 
     /*
     var_dump($probeInfo);
@@ -137,6 +159,24 @@ try {
 
     $finalVideo = $ffmpeg->open($currentFilename);
 
+    // video or audio?
+    if ($type === 'audio') {
+        $format = new \FFMpeg\Format\Audio\Mp3();
+        $extension = 'mp3';
+
+        $audioFileName = $tmpDir . 'audio.mp3';
+        $finalVideo->save($format, $audioFileName);
+        $finalVideo = $ffmpeg->open($audioFileName);
+    } else {
+        $format = new FFMpeg\Format\Video\X264('aac');
+
+        if ($kiloBitRate) {
+            $format->setKiloBitrate($kiloBitRate);
+        }
+
+        $extension = 'mp4';
+    }
+
     $clipStart = intval($skip);
     $clipDuration = $duration ? intval($duration) : null;
 
@@ -151,20 +191,6 @@ try {
         }
     }
 
-    // video or audio?
-    if ($type === 'audio') {
-        $format = new \FFMpeg\Format\Audio\Mp3();
-        $extension = 'mp3';
-    } else {
-        $format = new FFMpeg\Format\Video\X264('aac');
-
-        if ($kiloBitRate) {
-            $format->setKiloBitrate($kiloBitRate);
-        }
-
-        $extension = 'mp4';
-    }
-
     if ($type === 'video-only') {
         $finalVideo->addFilter(new VideoMuteFilter());
     }
@@ -173,7 +199,7 @@ try {
         $finalVideo->filters()->custom('afade=t=in:st=' . $clipStart . ':d=1');
     }
 
-    $finalDestination = TMP_DOWNLOAD_DIR . '/' . tmpfile() . '.' . $extension;
+    $finalDestination = $tmpDir . '/' . tmpfile() . '.' . $extension;
     //echo 'Saving to ' . $finalDestination . "\n";
 
     $finalVideo->save($format, $finalDestination);
@@ -192,16 +218,8 @@ try {
     readfile($finalDestination);
 
     // $video->getFile(); // \SplFileInfo instance of downloaded file
-} catch (NotFoundException $e) {
+} catch (\YoutubeDl\Exception\YoutubeDlException $e) {
     // Video not found
-    echo '<pre>';
-    echo $e;
-} catch (PrivateVideoException $e) {
-    // Video is private
-    echo '<pre>';
-    echo $e;
-} catch (CopyrightException $e) {
-    // The YouTube account associated with this video has been terminated due to multiple third-party notifications of copyright infringement
     echo '<pre>';
     echo $e;
 } catch (\Exception $e) {
@@ -210,6 +228,4 @@ try {
     echo $e;
 }
 
-foreach ($createdFiles as $v) {
-    unlink($v);
-}
+rrmdir($tmpDir);
