@@ -34,6 +34,7 @@ $type = isset($_GET['downloadType']) ? $_GET['downloadType'] : 'video';
 $skip = isset($_GET['skipTo']) ? $_GET['skipTo'] : 0;
 $name = isset($_GET['name']) ? $_GET['name'] : null;
 $duration = isset($_GET['duration']) ? $_GET['duration'] : null;
+$normalize = isset($_GET['normalize']) ? $_GET['normalize'] == 1 : true;
 //$destination = '/home/daedeloth/Team Drives/thijs@catlab.be/De Quizfabriek/Quizzes/Edities/Seizoen 5/QW 5.3 Radio Quizfabriek (muziekquiz)/Attachments/Gedownload';
 //$destination = '/home/daedeloth/Fragmenten/';
 
@@ -93,7 +94,6 @@ try {
 
     /*
     if ($type === 'audio') {
-
         $options->extractAudio(true)
             ->audioFormat('mp3')
             ->audioQuality(0)
@@ -101,6 +101,7 @@ try {
     }*/
 
     $dl = new YoutubeDl();
+    $dl->setBinPath('/usr/local/bin/yt-dlp');
 
     $video = $dl->download($options)->getVideos()[0];
 
@@ -167,6 +168,10 @@ try {
         $audioFileName = $tmpDir . 'audio.mp3';
         $finalVideo->save($format, $audioFileName);
         $finalVideo = $ffmpeg->open($audioFileName);
+
+        /*
+        $format = new \FFMpeg\Format\Audio\Mp3();
+        $extension = 'mp3';*/
     } else {
         $format = new FFMpeg\Format\Video\X264('aac');
 
@@ -203,6 +208,20 @@ try {
     //echo 'Saving to ' . $finalDestination . "\n";
 
     $finalVideo->save($format, $finalDestination);
+
+    // Normalize
+    if ($normalize) {
+        $normalizedFilename = $tmpDir . '/normalized-' . tmpfile() . '.' . $extension;
+
+        $audioCodexArgument = '-c:a aac';
+        if ($type === 'audio') {
+            $audioCodexArgument = '-c:a libmp3lame';
+        }
+
+        shell_exec('ffmpeg-normalize ' . $audioCodexArgument . ' --normalization-type peak --target-level 0 ' . escapeshellarg($finalDestination) . ' -o ' . escapeshellarg($normalizedFilename));
+        $finalDestination = $normalizedFilename;
+    }
+
     $createdFiles[] = $finalDestination;
 
     //echo 'Saved to ' . $finalDestination . "\n";

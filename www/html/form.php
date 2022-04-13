@@ -66,14 +66,15 @@
             $('[name=name]').val(),
             $('[name=downloadType]').val(),
             $('[name=skipTo]').val(),
-            $('[name=duration]').val()
+            $('[name=duration]').val(),
+            $('[name=normalize]').is(':checked')
         )
 
         $('input').val('');
         return false;
     }
 
-    function addPendingDownload(url, name, type, skipTo, duration) {
+    function addPendingDownload(url, name, type, skipTo, duration, normalize) {
         if (!url || url == '') {
             return;
         }
@@ -83,7 +84,8 @@
             name: name,
             downloadType: type,
             skipTo: skipTo,
-            duration: duration
+            duration: duration,
+            normalize: normalize ? 1 : 0
         };
 
         var description = url;
@@ -221,6 +223,11 @@
         <div class="form-group">
             <label for="duration">Duration (in seconds)</label>
             <input type="number" class="form-control" id="duration" name="duration" placeholder="Duration (in seconds)" />
+        </div>
+
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="normalize" name="normalize" checked="checked" value="1" />
+            <label for="normalize" class="form-check-label">Perform peak normalization</label>
         </div>
 
         <button type="submit" class="btn btn-primary">Download</button>
