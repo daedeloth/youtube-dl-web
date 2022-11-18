@@ -226,7 +226,7 @@
         </div>
 
         <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="normalize" name="normalize" checked="checked" value="1" />
+            <input type="checkbox" class="form-check-input" id="normalize" name="normalize" value="1" />
             <label for="normalize" class="form-check-label">Perform peak normalization</label>
         </div>
 

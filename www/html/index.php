@@ -34,7 +34,7 @@ $type = isset($_GET['downloadType']) ? $_GET['downloadType'] : 'video';
 $skip = isset($_GET['skipTo']) ? $_GET['skipTo'] : 0;
 $name = isset($_GET['name']) ? $_GET['name'] : null;
 $duration = isset($_GET['duration']) ? $_GET['duration'] : null;
-$normalize = isset($_GET['normalize']) ? $_GET['normalize'] == 1 : true;
+$normalize = isset($_GET['normalize']) ? $_GET['normalize'] == 1 : false;
 //$destination = '/home/daedeloth/Team Drives/thijs@catlab.be/De Quizfabriek/Quizzes/Edities/Seizoen 5/QW 5.3 Radio Quizfabriek (muziekquiz)/Attachments/Gedownload';
 //$destination = '/home/daedeloth/Fragmenten/';
 
