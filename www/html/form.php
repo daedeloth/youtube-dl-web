@@ -49,7 +49,7 @@
 <script>
     var frameCount = 0;
     var activeDownloads = 0;
-    var maxActiveDownloads = 2;
+    var maxActiveDownloads = 1;
     var downloadQueue = [];
 
     function downloadFile(e) {
@@ -226,7 +226,7 @@
         </div>
 
         <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="normalize" name="normalize" value="1" />
+            <input type="checkbox" class="form-check-input" id="normalize" name="normalize" value="1" checked="checked" />
             <label for="normalize" class="form-check-label">Perform peak normalization</label>
         </div>
 
