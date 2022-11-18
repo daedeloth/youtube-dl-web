@@ -140,18 +140,20 @@ try {
     $bitrate = null;
 
     if ($probeInfo) {
+        /*
         $bitrate = $probeInfo->get('bitrate');;
 
         if ($bitrate) {
             $kiloBitRate = ceil($bitrate / 1024);
-        } else {
+        } else {*/
             $width = $probeInfo->get('width');
             if ($width) {
                 $kiloBitRate = max(1500, ceil(($width / 1980) * 1500));
             }
-        }
+        //}
     }
 
+    // now cut
     // now cut
     $ffmpeg = FFMpeg\FFMpeg::create([
         'timeout'          => 3600, // The timeout for the underlying process
@@ -163,6 +165,7 @@ try {
     // video or audio?
     if ($type === 'audio') {
         $format = new \FFMpeg\Format\Audio\Mp3();
+        $format->setAudioKiloBitrate(192);
         $extension = 'mp3';
 
         $audioFileName = $tmpDir . 'audio.mp3';
@@ -173,13 +176,11 @@ try {
         $format = new \FFMpeg\Format\Audio\Mp3();
         $extension = 'mp3';*/
     } else {
-        $format = new FFMpeg\Format\Video\X264('aac');
-
-        /*
+        $format = new FFMpeg\Format\Video\X264('copy');
+        //$format->setAudioKiloBitrate(192);
         if ($kiloBitRate) {
             $format->setKiloBitrate($kiloBitRate);
-        }*/
-
+        }
         $extension = 'mp4';
     }
 
@@ -205,16 +206,14 @@ try {
         $finalVideo->filters()->custom('afade=t=in:st=' . $clipStart . ':d=1');
     }
 
-    $finalDestination = $tmpDir . '/' . tmpfile() . '.' . $extension;
-    //echo 'Saving to ' . $finalDestination . "\n";
-
+    $finalDestination = $tmpDir . '/clip.' . $extension;
     $finalVideo->save($format, $finalDestination);
 
     // Normalize
     if ($normalize) {
-        $normalizedFilename = $tmpDir . '/normalized-' . tmpfile() . '.' . $extension;
+        $normalizedFilename = $tmpDir . '/clip-normalized.' . $extension;
 
-        $audioCodexArgument = '-c:a aac';
+        $audioCodexArgument = '-c:a copy';
         if ($type === 'audio') {
             $audioCodexArgument = '-c:a libmp3lame';
         }
