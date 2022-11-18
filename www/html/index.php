@@ -175,9 +175,10 @@ try {
     } else {
         $format = new FFMpeg\Format\Video\X264('aac');
 
+        /*
         if ($kiloBitRate) {
             $format->setKiloBitrate($kiloBitRate);
-        }
+        }*/
 
         $extension = 'mp4';
     }
