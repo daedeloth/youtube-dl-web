@@ -49,7 +49,8 @@ mkdir($tmpDir);
 $options = \YoutubeDl\Options::create()
     ->continue(true)
     ->downloadPath($tmpDir)
-    ->url($url);
+    ->url($url)
+    ->format('bestvideo[height<=?1080]+bestaudio/best"');
 
 /*
 if ($type === 'audio') {
