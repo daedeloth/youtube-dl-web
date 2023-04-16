@@ -65,11 +65,10 @@ $dl->setBinPath('/usr/local/bin/yt-dlp');
 
 $video = $dl->download($options)->getVideos()[0];
 
-if ($video->getError()) {
-    throw new Exception($video->getError());
-}
-
 $filename = $video->getFile()->getPathname();
+if (!$filename || !file_exists($filename)) {
+    throw new Exception('Failed downloading video: ' . $video->getError());
+}
 
 if (!$name) {
     $name = $video->getFile()->getBasename('.' . $video->getFile()->getExtension());
