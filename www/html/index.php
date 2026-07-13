@@ -50,7 +50,7 @@ $options = \YoutubeDl\Options::create()
     ->continue(true)
     ->downloadPath($tmpDir)
     ->url($url)
-    ->format('bestvideo[height<=?1080]+bestaudio/best"');
+    ->format('bestvideo[height<=?1080]+bestaudio/best');
 
 /*
 if ($type === 'audio') {
@@ -63,11 +63,24 @@ if ($type === 'audio') {
 $dl = new YoutubeDl();
 $dl->setBinPath('/usr/local/bin/yt-dlp');
 
-$video = $dl->download($options)->getVideos()[0];
+$ytdlpOutput = '';
+$dl->debug(function (string $type, string $buffer) use (&$ytdlpOutput): void {
+    $ytdlpOutput .= $buffer;
+});
+
+$videos = $dl->download($options)->getVideos();
+if (count($videos) === 0) {
+    throw new Exception('yt-dlp did not return any video. Output: ' . substr($ytdlpOutput, -2000));
+}
+$video = $videos[0];
+
+if ($video->getError() !== null) {
+    throw new Exception('Failed downloading video: ' . $video->getError());
+}
 
 $filename = $video->getFile()->getPathname();
 if (!$filename || !file_exists($filename)) {
-    throw new Exception('Failed downloading video: ' . $video->getError());
+    throw new Exception('Failed downloading video: file not found after download.');
 }
 
 if (!$name) {
