@@ -5,6 +5,24 @@ require __DIR__ . '/../clipper.php';
 
 define('TMP_DOWNLOAD_DIR', '/tmp/youtube-dl/');
 
+// Optional Netscape-format cookies file (mount it into the container) so
+// yt-dlp downloads as a logged-in user and passes YouTube's bot check.
+define('COOKIES_FILE', '/config/cookies.txt');
+
+// Return the error as plain text, so the form can show why a download failed.
+set_exception_handler(function (Throwable $e) {
+    error_log('PHP Fatal error:  Uncaught ' . $e);
+    // Don't leave the partial download (and cookies copy) behind.
+    if (isset($GLOBALS['tmpDir'])) {
+        rrmdir($GLOBALS['tmpDir']);
+    }
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=utf-8');
+    }
+    echo $e->getMessage();
+});
+
 use YoutubeDl\YoutubeDl;
 use YoutubeDl\Exception\CopyrightException;
 use YoutubeDl\Exception\NotFoundException;
@@ -51,6 +69,14 @@ $options = \YoutubeDl\Options::create()
     ->downloadPath($tmpDir)
     ->url($url)
     ->format('bestvideo[height<=?1080]+bestaudio/best');
+
+// yt-dlp writes refreshed cookies back to the file, so give it a private copy;
+// the mounted original may be read-only.
+if (is_readable(COOKIES_FILE)) {
+    $cookiesCopy = $tmpDir . '/cookies.txt';
+    copy(COOKIES_FILE, $cookiesCopy);
+    $options = $options->cookies($cookiesCopy);
+}
 
 /*
 if ($type === 'audio') {
