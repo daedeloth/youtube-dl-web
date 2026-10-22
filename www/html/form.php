@@ -146,8 +146,12 @@
                     downloadNext();
                 },
 
-                failCallback: function() {
+                failCallback: function(responseHtml) {
+                    var reason = $('<div>').html(responseHtml).text().trim();
                     nextItem.listItem.html('<span class="error">Failed downloading ' + nextItem.description + '</span>');
+                    if (reason) {
+                        nextItem.listItem.find('.error').append(': ', document.createTextNode(reason));
+                    }
                     activeDownloads --;
 
                     downloadNext();
